@@ -59,7 +59,7 @@ nnz <- function(mat) {
 #' @examples
 #' mat <- matrix(round(runif(100, max = 100)), 10, 10)
 #' to_frac(mat)
-#' to_frac(mat, margin = 1)
+#' to_frac(mat, MARGIN = 1)
 #' mat[sample(1:100, 80)] <- 0
 #' mat <- as(mat, 'dgCMatrix')
 #' to_frac(mat)
@@ -152,4 +152,88 @@ log_transform <- function(mat, base = 2, reverse = FALSE) {
             return(log(mat + 1, base = base))
         }
     }
+}
+
+
+
+
+
+#' Shuffle matrix elements by row or column
+#'
+#' Re-orders the elements in each row or column of the matrix. Useful for defining null distributions. In the case of large sparse matrices (class \code{dgTMatrix}, \code{dgCMatrix} or \code{dgRMatrix}), this is faster than using \code{apply}, although for small matrices it may be slower.
+#' @param mat A matrix. May be sparse (i.e. of class \code{dgTMatrix}, \code{dgCMatrix} or \code{dgRMatrix}).
+#' @param MARGIN The subscript to apply over. Possible values are \code{1} and \code{2}. If \code{1}, the rows of the matrix are re-ordered; if \code{2}, the columns.
+#' @return A matrix of the same size and class as \code{mat}.
+#' @export
+#' @examples
+#' mat <- matrix(round(runif(100, max = 100)), 10, 10)
+#' shuffle(mat)
+#' shuffle(mat, MARGIN = 1)
+#' mat[sample(1:100, 80)] <- 0
+#' mat <- as(mat, 'dgCMatrix')
+#' shuffle(mat)
+
+shuffle <- function(mat, MARGIN = 2) {
+
+    # To do: add an option for MARGIN = NULL, which would mean we just shuffle all values randomly irrespective of rows or columns.
+
+    MARGIN <- match.arg(as.character(MARGIN), c('1', '2'))
+
+    if('dgCMatrix' %in% class(mat)) {
+        out <- mat
+        if(MARGIN == '1') {
+            out_attrs <- data.table(ind = 1:length(mat@i), rn = mat@i, val = mat@x)[,
+                .(ind = ind, val = switch((.N == 1) + 1, sample(val), val), cn = sample(1L:ncol(mat) - 1L, .N)),
+                by = rn
+            ][order(cn, rn)]
+            out@i <- out_attrs$rn
+            out@p <- out_attrs[, c(0L, cumsum(tabulate(cn + 1L)))]
+            out@x <- out_attrs$val
+        } else {
+            out_attrs <- data.table(ind = 1:ncol(mat), p0 = mat@p[-length(mat@p)] + 1, p1 = mat@p[-1], pdiff = diff(mat@p))[
+                p0 <= p1,
+                .(rn = sort(sample(1L:nrow(mat) - 1L, pdiff)), val = switch((p0 == p1) + 1, sample(mat@x[p0:p1]), mat@x[p0])),
+                by = ind
+            ]
+            out@i <- out_attrs$rn
+            out@x <- out_attrs$val
+        }
+        return(out)
+    } else if('dgRMatrix' %in% class(mat)) {
+        out <- mat
+        if(MARGIN == '1') {
+            out_attrs <- data.table(ind = 1:nrow(mat), p0 = mat@p[-length(mat@p)] + 1, p1 = mat@p[-1], pdiff = diff(mat@p))[
+                p0 <= p1,
+                .(cn = sort(sample(1L:ncol(mat) - 1L, pdiff)), val = switch((p0 == p1) + 1, sample(mat@x[p0:p1]), mat@x[p0])),
+                by = ind
+            ]
+            out@j <- out_attrs$cn
+            out@x <- out_attrs$val
+        } else {
+            out_attrs <- data.table(ind = 1:length(mat@j), cn = mat@j, val = mat@x)[,
+                .(ind = ind, val = switch((.N == 1) + 1, sample(val), val), rn = sample(1L:nrow(mat) - 1L, .N)),
+                by = cn
+            ][order(rn, cn)]
+            out@j <- out_attrs$cn
+            out@p <- out_attrs[, c(0L, cumsum(tabulate(rn + 1L)))]
+            out@x <- out_attrs$val
+        }
+        return(out)
+    } else if('dgTMatrix' %in% class(mat)) {
+        out <- mat
+        if(MARGIN == '1') {
+            out@j <- data.table(ind = 1:length(mat@i), rn = mat@i)[, .(ind = ind, cn = sample(1L:ncol(mat) - 1L, .N)), by = rn][order(ind), cn]
+        } else {
+            out@i <- data.table(ind = 1:length(mat@j), cn = mat@j)[, .(ind = ind, rn = sample(1L:nrow(mat) - 1L, .N)), by = cn][order(ind), rn]
+        }
+        return(out)
+    } else {
+        if(MARGIN == '1') {
+            return(set_colnames(t(apply(mat, 1, sample)), colnames(mat)))
+        } else {
+            return(set_rownames(apply(mat, 2, sample), rownames(mat)))
+        }
+        # and if margin is NULL: matrix(sample(mat), nrow(mat), ncol(mat)), then set rownames and colnames to same as mat
+    }
+
 }
