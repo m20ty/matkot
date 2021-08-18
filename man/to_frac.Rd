@@ -20,7 +20,7 @@ Divides the elements of a matrix by their corresponding row or column totals. Th
 \examples{
 mat <- matrix(round(runif(100, max = 100)), 10, 10)
 to_frac(mat)
-to_frac(mat, margin = 1)
+to_frac(mat, MARGIN = 1)
 mat[sample(1:100, 80)] <- 0
 mat <- as(mat, 'dgCMatrix')
 to_frac(mat)
