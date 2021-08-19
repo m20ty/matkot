@@ -19,7 +19,13 @@ sig_score <- function(
     return_control_sets = FALSE
 ) {
 
-    gene_averages <- sort(rowMeans(mat))
+    # We could use Matrix::rowMeans for either case, but it seems to be faster if we first choose the right function using an if statement.
+    if(any(c('dgTMatrix', 'dgCMatrix', 'dgRMatrix') %in% class(mat))) {
+        gene_averages <- sort(Matrix::rowMeans(mat))
+    } else {
+        gene_averages <- sort(base::rowMeans(mat))
+    }
+
     bins <- setNames(cut(seq_along(gene_averages), breaks = nbin, labels = FALSE, include.lowest = TRUE), names(gene_averages))
 
     if(return_control_sets) {

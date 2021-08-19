@@ -177,6 +177,8 @@ shuffle <- function(mat, MARGIN = 2) {
 
     # To do: add an option for MARGIN = NULL, which would mean we just shuffle all values randomly irrespective of rows or columns.
 
+    # We could also avoid using switch() by replacing sample with x[sample(length(x))], or x[sample(1:length(x))] to be more explicit.
+
     MARGIN <- match.arg(as.character(MARGIN), c('1', '2'))
 
     if('dgCMatrix' %in% class(mat)) {
