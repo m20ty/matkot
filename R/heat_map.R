@@ -28,6 +28,7 @@
 #' @param ... Additional arguments to be passed to ggplot2's \code{theme} function in the construction of the heatmap.
 #' @return If \code{return_data} is \code{FALSE}, a \code{ggplot} object. If \code{return_data} is \code{TRUE}, a list with two elements: \code{plot}, a \code{ggplot} object; and \code{data}, a data frame.
 #' @export
+#' @import data.table
 
 heat_map <- function(
 
@@ -87,7 +88,7 @@ heat_map <- function(
     if(is.null(rownames(mat))) {rownames(mat) <- as.character(1:nrow(mat))}
     if(is.null(colnames(mat))) {colnames(mat) <- as.character(1:ncol(mat))}
 
-    plot_data <- data.table::melt(as.data.table(mat, keep.rownames = 'idy'), id.vars = 'idy', variable.name = 'idx', value.name = 'value')
+    plot_data <- melt(as.data.table(mat, keep.rownames = 'idy'), id.vars = 'idy', variable.name = 'idx', value.name = 'value')
     setcolorder(plot_data, c('idx', 'idy', 'value'))
 
     if(!is.null(ord)) { # If value is supplied to <ord>, use the same ord for both axes
