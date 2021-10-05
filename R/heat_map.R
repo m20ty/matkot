@@ -87,7 +87,7 @@ heat_map <- function(
     if(is.null(rownames(mat))) {rownames(mat) <- as.character(1:nrow(mat))}
     if(is.null(colnames(mat))) {colnames(mat) <- as.character(1:ncol(mat))}
 
-    plot_data <- melt(as.data.table(mat, keep.rownames = 'idy'), id.vars = 'idy', variable.name = 'idx', value.name = 'value')
+    plot_data <- data.table::melt(as.data.table(mat, keep.rownames = 'idy'), id.vars = 'idy', variable.name = 'idx', value.name = 'value')
     setcolorder(plot_data, c('idx', 'idy', 'value'))
 
     if(!is.null(ord)) { # If value is supplied to <ord>, use the same ord for both axes
@@ -98,10 +98,7 @@ heat_map <- function(
                 if(!all(ord$labels == rownames(mat)) || !all(ord$labels == colnames(mat))) {
                     stop('Labels from <ord> do not match row/column names of <mat>.')
                 }
-                plot_data[
-                    ,
-                    c('idx', 'idy') := .(factor(idx, levels = with(ord, labels[order])), factor(idy, levels = with(ord, labels[order])))
-                ]
+                plot_data[, c('idx', 'idy') := .(factor(idx, levels = with(ord, labels[order])), factor(idy, levels = with(ord, labels[order])))]
             } else {
                 plot_data[, c('idx', 'idy') := .(factor(idx, levels = colnames(mat)[ord]), factor(idy, levels = rownames(mat)[ord]))]
             }
@@ -147,20 +144,14 @@ heat_map <- function(
                     if(!('hclust' %in% class(ord_x))) {
                         warning("Cannot draw x dendrogram when <ord_x> does not have class 'hclust'.")
                     } else {
-                        dend_list <- c(
-                            dend_list,
-                            list(x = dendro(ord_x, edge = 'bottom', plot_margin = c(plot_margin[1:2], 0, plot_margin[4])))
-                        )
+                        dend_list <- c(dend_list, list(x = dendro(ord_x, edge = 'bottom', plot_margin = c(plot_margin[1:2], 0, plot_margin[4]))))
                     }
                 }
                 if(!is.null(ord_y)) {
                     if(!('hclust' %in% class(ord_y))) {
                         warning("Cannot draw y dendrogram when <ord_y> does not have class 'hclust'.")
                     } else {
-                        dend_list <- c(
-                            dend_list,
-                            list(y = dendro(ord_y, edge = 'left', plot_margin = c(plot_margin[1:3], 0)))
-                        )
+                        dend_list <- c(dend_list, list(y = dendro(ord_y, edge = 'left', plot_margin = c(plot_margin[1:3], 0))))
                     }
                 }
             }
