@@ -86,7 +86,7 @@ to_frac <- function(mat, MARGIN = 2) {
             out@x <- unlist(unname(tapply(mat@x, cut(1:length(mat@x), mat@p), function(y) y/sum(y), simplify = FALSE)))
             out
         } else {
-            apply(mat, 2, function(x) x/sum(x))
+            t(apply(mat, 1, function(x) x/sum(x)))
         }
 
     } else { # Then MARGIN == '2'
@@ -105,7 +105,7 @@ to_frac <- function(mat, MARGIN = 2) {
             out@x <- unlist(unname(tapply(mat@x, cut(1:length(mat@x), mat@p), function(y) y/sum(y), simplify = FALSE)))
             out
         } else {
-            t(apply(mat, 1, function(x) x/sum(x)))
+            apply(mat, 2, function(x) x/sum(x))
         }
 
     }
