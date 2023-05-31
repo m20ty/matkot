@@ -16,7 +16,8 @@ sig_score <- function(
     nbin = nrow(mat) %/% 110,
     n = 100,
     replace = FALSE,
-    return_control_sets = FALSE
+    return_control_sets = FALSE,
+    cap = c(-Inf, Inf)
 ) {
 
     # We could use Matrix::rowMeans for either case, but it seems to be faster if we first choose the right function using an if statement.
@@ -38,14 +39,24 @@ sig_score <- function(
             USE.NAMES = TRUE
         )
         comparable_gene_sets <- lapply(1:n, function(i) sapply(sig_gene_controls, `[`, i))
-        sig_scores <- rowMeans(sapply(sig, function(g) mat[g, ] - colMeans(mat[sig_gene_controls[[g]], ])))
+        sig_scores <- rowMeans(
+            sapply(sig, function(g) {
+                gout <- mat[g, ] - Matrix::colMeans(mat[sig_gene_controls[[g]], ])
+                gout[gout > cap[2]] <- cap[2]; gout[gout < cap[1]] <- cap[1]
+                return(gout)
+            })
+        )
 
         return(list(scores = sig_scores, controls = sig_gene_controls, comparable_gene_sets = comparable_gene_sets))
 
     } else {
 
         sig_scores <- rowMeans(
-            sapply(sig, function(g) mat[g, ] - Matrix::colMeans(mat[sample(names(bins)[bins == bins[g]], n, replace = replace), ]))
+            sapply(sig, function(g) {
+                gout <- mat[g, ] - Matrix::colMeans(mat[sample(names(bins)[bins == bins[g]], n, replace = replace), ])
+                gout[gout > cap[2]] <- cap[2]; gout[gout < cap[1]] <- cap[1]
+                return(gout)
+            })
         )
 
         return(sig_scores)

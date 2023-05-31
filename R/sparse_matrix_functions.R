@@ -1,3 +1,5 @@
+# Think about whether it is possible to calculate correlation from sparse matrices.
+
 #' Number of zeros
 #'
 #' Find the number of non-zero elements in a matrix per row, per column or in total. In the case of sparse matrices (class \code{dgTMatrix}, \code{dgCMatrix} or \code{dgRMatrix}), this is much faster than using \code{apply} and/or \code{sum}. Note there already exists a function \code{nnzero} in the Matrix package that finds the number of non-zero elements in a sparse matrix, but \code{nnz} is faster.

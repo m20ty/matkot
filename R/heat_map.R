@@ -1,3 +1,8 @@
+# Change this function so that when you don't supply order objects, it plots in the same order as in the matrix, like the image() function.  At the
+# moment, it sorts the x and y labels into alphabetical order.
+
+# Also add functionality to plot colour bars between heatmap and dendrogram.
+
 #' No-frills heatmap
 #'
 #' Makes a heatmap with optional row/column ordering and aligned dendrograms.
