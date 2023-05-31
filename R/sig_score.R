@@ -4,9 +4,10 @@
 #' @param mat A matrix with genes for rows and samples for columns.
 #' @param sig A character vector of signature genes.
 #' @param nbin The number of expression bins into which to divide the genes.
-#' @param n The number of control genes to sample for each gene. Should be less than or equal to \code{nrow(mat)/nbin}
+#' @param n The number of control genes to sample for each gene. Should be less than or equal to \code{nrow(mat)/nbin}.
 #' @param replace Logical indicating whether to sample with replacement. Default: \code{FALSE}.
 #' @param return_control_sets Logical indicating whether to return the control genes. Default: \code{FALSE}.
+#' @param cap Numeric vector of length 2 specifying limits for relative expression levels of signature genes. Values outside this interval will be shrunk to the maximum/minimum. Default: \code{c(-Inf, Inf)}.
 #' @return If \code{return_control_sets} is \code{FALSE}, a vector of scores with length equal to \code{ncol(mat)}. If \code{return_control_sets} is \code{TRUE}, a list with three elements: \code{scores}, a vector of scores with length equal to \code{ncol(mat)}; \code{controls}, a list of the control gene sets used for each gene in \code{sig}; and \code{comparable_gene_sets}, a list of length \code{n} and a rearrangement of \code{controls}, each element being a vector of genes with comparable expression levels to those in \code{sig} (this is redundant but possibly helpful).
 #' @export
 

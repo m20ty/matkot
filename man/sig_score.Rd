@@ -10,7 +10,8 @@ sig_score(
   nbin = nrow(mat)\%/\%110,
   n = 100,
   replace = FALSE,
-  return_control_sets = FALSE
+  return_control_sets = FALSE,
+  cap = c(-Inf, Inf)
 )
 }
 \arguments{
@@ -20,11 +21,13 @@ sig_score(
 
 \item{nbin}{The number of expression bins into which to divide the genes.}
 
-\item{n}{The number of control genes to sample for each gene. Should be less than or equal to \code{nrow(mat)/nbin}}
+\item{n}{The number of control genes to sample for each gene. Should be less than or equal to \code{nrow(mat)/nbin}.}
 
 \item{replace}{Logical indicating whether to sample with replacement. Default: \code{FALSE}.}
 
 \item{return_control_sets}{Logical indicating whether to return the control genes. Default: \code{FALSE}.}
+
+\item{cap}{Numeric vector of length 2 specifying limits for relative expression levels of signature genes. Values outside this interval will be shrunk to the maximum/minimum.  Default: \code{c(-Inf, Inf)}.}
 }
 \value{
 If \code{return_control_sets} is \code{FALSE}, a vector of scores with length equal to \code{ncol(mat)}. If \code{return_control_sets} is \code{TRUE}, a list with three elements: \code{scores}, a vector of scores with length equal to \code{ncol(mat)}; \code{controls}, a list of the control gene sets used for each gene in \code{sig}; and \code{comparable_gene_sets}, a list of length \code{n} and a rearrangement of \code{controls}, each element being a vector of genes with comparable expression levels to those in \code{sig} (this is redundant but possibly helpful).
